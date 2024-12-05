@@ -16,7 +16,7 @@ from productos_scraping.maracuya_scraping import maracuya_precio  # Importar la 
 from productos_scraping.cebolla_blanca_scraping import cebollaBlanca_precio  # Importar la función limon_precio
 from productos_scraping.nabo_scraping import nabo_precio  # Importar la función limon_precio
 from collections import defaultdict
-
+import os
 import uuid
 
 
@@ -767,4 +767,4 @@ def enviar_peticion_nabo():
     return redirect(url_for('ver_lista_precios'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=os.getenv("PORT", default=5000))

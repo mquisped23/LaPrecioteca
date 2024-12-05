@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Enlace para Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Incluir la librería SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+    <script>
+        // Función para actualizar el total de cada producto
+        function actualizarTotal(inputCantidad, precio, totalElement) {
+            const cantidad = parseFloat(inputCantidad.value);
+            const total = cantidad * precio;
+            totalElement.textContent = `S/ ${total.toFixed(2)}`;
+            actualizarSumaSupermercado();
+        }
+
+        // Función para incrementar o decrementar la cantidad
+        function modificarCantidad(inputCantidad, cambio, precio, totalElement) {
+            let cantidad = parseFloat(inputCantidad.value);
+            cantidad += cambio;
+
+            if (cantidad < 1) {
+                cantidad = 1;
+            }
+
+            inputCantidad.value = cantidad;
+            actualizarTotal(inputCantidad, precio, totalElement);
+        }
+
+        // Función para actualizar la suma total por supermercado
+        function actualizarSumaSupermercado() {
+            document.querySelectorAll('.supermercado-container').forEach(function(supermercadoContainer) {
+                let sumaTotal = 0;
+
+                supermercadoContainer.querySelectorAll('.total-producto').forEach(function(totalProducto) {
+                    const totalValue = parseFloat(totalProducto.textContent.replace('S/', ''));
+                    sumaTotal += totalValue;
+                });
+
+                const sumaSupermercado = supermercadoContainer.querySelector('.suma-supermercado');
+                sumaSupermercado.textContent = `S/ ${sumaTotal.toFixed(2)}`;
+            });
+        }
+
+ 
+    // Función para exportar a Excel
+    function exportarAExcel(supermercado) {
+    // Obtener la tabla correspondiente al supermercado
+    const tabla = document.getElementById(`tabla-${supermercado}`);
+    
+    if (!tabla) {
+        alert("No se encontró la tabla para exportar.");
+        return;
+    }
+
+    // Iterar sobre las filas de la tabla
+    const filas = tabla.querySelectorAll('tr');
+
+    filas.forEach(fila => {
+        // Buscar el input de cantidad en cada fila
+        const inputCantidad = fila.querySelector('input[type="number"]');
+        
+        if (inputCantidad) {
+            // Obtener el valor del input y reemplazar el contenido de la celda con ese valor
+            const valorCantidad = inputCantidad.value;
+            
+            // Encontrar la celda de la cantidad y actualizarla con el valor del input
+            const celdaCantidad = fila.querySelector('.celda-cantidad');  // Asegúrate de que la celda de la cantidad tenga esta clase
+            if (celdaCantidad) {
+                celdaCantidad.textContent = valorCantidad;  // Reemplazar el contenido de la celda con el valor numérico
+            }
+        }
+    });
+
+    // Convertir la tabla a un libro de Excel
+    const wb = XLSX.utils.table_to_book(tabla, { sheet: supermercado });
+
+    // Descargar el archivo
+    XLSX.writeFile(wb, `${supermercado}_precios.xlsx`);
+}
+
+
+
+    // Función para generar el PDF
+    function generarPDF(supermercado) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Título de la boleta
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Lista de Compra", 105, 20, null, null, "center");
+
+    // Nombre del supermercado
+    doc.setFontSize(14);
+    doc.text(supermercado, 105, 30, null, null, "center");
+
+    // Espaciado entre el título y los productos
+    doc.line(10, 35, 200, 35); // Línea horizontal
+    doc.setLineWidth(0.5);
+    doc.setFontSize(12);
+
+    // Tabla de productos
+    const tabla = document.getElementById(`tabla-${supermercado}`);
+    const filas = tabla.querySelectorAll('tr');
+    
+    // Cabecera de la tabla
+    doc.text("Producto", 10, 45);
+    doc.text("Cantidad", 90, 45);
+    doc.text("Precio", 130, 45);
+    doc.text("Total", 170, 45);
+    
+    let y = 55;
+
+    filas.forEach(fila => {
+        const columnas = fila.querySelectorAll('td');
+        
+        if (columnas.length > 0) {
+            const producto = columnas[0].textContent.trim();
+            const cantidad = fila.querySelector('input[type="number"]').value;
+            const precio = columnas[2].textContent.replace("S/", "").trim();
+            const total = columnas[4].textContent.replace("S/", "").trim();
+
+            doc.text(producto, 10, y);
+            doc.text(cantidad, 90, y);
+            doc.text(`S/ ${precio}`, 130, y);
+            doc.text(`S/ ${total}`, 170, y);
+
+            y += 10;
+        }
+    });
+
+    // Línea horizontal para separar el total
+    doc.line(10, y, 200, y);
+
+    // Buscar el total del supermercado, ahora dentro del contenedor específico
+    const contenedorSupermercado = document.querySelector(`.supermercado-container:has(#tabla-${supermercado})`);
+    const totalSupermercadoElement = contenedorSupermercado.querySelector('.suma-supermercado');
+
+    let totalSupermercado = '0.00'; // Valor predeterminado en caso de no encontrar el total
+
+    if (totalSupermercadoElement) {
+        totalSupermercado = totalSupermercadoElement.textContent.replace("S/", "").trim();
+    }
+
+    // Escribir el total en el PDF
+    doc.text(`Total: S/ ${totalSupermercado}`, 10, y + 10);
+
+    // Descargar el PDF
+    doc.save(`${supermercado}_boleta.pdf`);
+}
+
+        
+    </script>
+    
+    <title>Lista de Precios</title>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+      <!-- Navbar -->
+      <nav class="text-white bg-orange-500 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-3xl font-bold">La Precioteca</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="/" class="text-lg  hover:text-blue-200">Inicio</a>
+                <a href="{{ url_for('listar_productos') }}" class=" text-lg hover:text-blue-200">Productos</a>
+                <a href="{{ url_for('ver_lista_precios') }}" class="text-lg  hover:text-blue-200">Mi lista</a>
+            </div>
+            <!-- Botón menú para dispositivos móviles -->
+            <div class="md:hidden">
+                <button id="menu-toggle" class="focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menú desplegable móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-orange-600 px-4 py-2">
+            <a href="/" class="block py-2 hover:text-blue-200">Inicio</a>
+            <a href="{{ url_for('listar_productos') }}" class="block py-2 hover:text-blue-200">Productos</a>
+            <a href="{{ url_for('ver_lista_precios') }}" class="block py-2 hover:text-blue-200">Mi lista</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        <h1 class="text-2xl font-bold text-center mb-6">Lista de Precios Seleccionados</h1>
+        <div class="bg-white shadow-md rounded overflow-hidden">
+            {% for supermercado, precios in precios_por_supermercado.items() %}
+                <div class="supermercado-container mb-4">
+                    <div class="bg-blue-100 px-4 py-2 font-semibold">
+                        {{ supermercado }}
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="tabla-{{ supermercado }}" class="table-auto w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-200 text-sm uppercase text-center">
+                                    <th class="px-4 py-2">Producto</th>
+                                    <th class="px-4 py-2">Unidad</th>
+                                    <th class="px-4 py-2">Precio</th>
+                                    <th class="px-4 py-2">Cantidad</th>
+                                    <th class="px-4 py-2">Total</th>
+                                    <th class="px-4 py-2">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in precios %}
+                                    <tr class="border-b text-center">
+                                        <td class="px-4 py-2">{{ item.producto }}</td>
+                                        <td class="px-4 py-2">{{ item.unidad }}</td>
+                                        <td class="px-4 py-2">S/{{ "%.2f" | format(item.precio | float) }}</td>
+                                        <td class="celda-cantidad 18.px-4 py-2">
+                                            <div class="flex items-center justify-center">
+                                                <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-2 py-1 rounded-l" onclick="modificarCantidad(document.getElementById('cantidad-{{ item.id }}'), -1, {{ item.precio | float }}, document.getElementById('total-{{ item.id }}'))">-</button>
+                                                <input type="number" id="cantidad-{{ item.id }}" class="w-16 text-center border border-gray-300" value="1" readonly>
+                                                <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-2 py-1 rounded-r" onclick="modificarCantidad(document.getElementById('cantidad-{{ item.id }}'), 1, {{ item.precio | float }}, document.getElementById('total-{{ item.id }}'))">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-2 text-center total-producto" id="total-{{ item.id }}">S/{{ "%.2f" | format(item.precio | float) }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            <form method="POST" action="{{ url_for('eliminar_precio') }}">
+                                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                <button type="submit" class="text-red-600 hover:text-red-800">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-gray-200 px-4 py-2 text-right">
+                        <strong>Total {{ supermercado }}:</strong> 
+                        <span class="suma-supermercado">S/ {{ "%.2f" | format(suma_por_supermercado[supermercado] | float) }}</span>
+                    </div>
+                    <!-- Botón para exportar a Excel -->
+                    <div class="text-center mt-4">
+                        <button class="bg-green-600 text-white px-4 py-2 rounded" onclick="exportarAExcel('{{ supermercado }}')">
+                            Exportar a Excel
+                        </button>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded" onclick="generarPDF('{{ supermercado }}')">
+                            Imprimir lista PDF
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

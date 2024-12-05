@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Página principal</title>
+</head>
+<body class="">
+
+    <!-- Navbar -->
+    <nav class="text-white bg-orange-500 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-3xl font-bold">La Precioteca</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="/" class="text-lg  hover:text-blue-200">Inicio</a>
+                <a href="{{ url_for('listar_productos') }}" class=" text-lg hover:text-blue-200">Productos</a>
+                <a href="{{ url_for('ver_lista_precios') }}" class="text-lg  hover:text-blue-200">Mi lista</a>
+            </div>
+            <!-- Botón menú para dispositivos móviles -->
+            <div class="md:hidden">
+                <button id="menu-toggle" class="focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menú desplegable móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-orange-600 px-4 py-2">
+            <a href="/" class="block py-2 hover:text-blue-200">Inicio</a>
+            <a href="{{ url_for('listar_productos') }}" class="block py-2 hover:text-blue-200">Productos</a>
+            <a href="{{ url_for('ver_lista_precios') }}" class="block py-2 hover:text-blue-200">Mi lista</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="flex flex-col md:flex-row justify-center items-center h-[80vh] container mx-auto px-4">
+        <div class="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
+            <h1 style="color: #a6aada;margin-top: 5%;" class="text-3xl md:text-6xl font-bold text-gray-800 mb-6">¡Accede a precios actualizados y compara opciones en segundos!</h1>
+            <p class="text-md md:text-lg text-gray-600 mb-8"><i>Nuestra plataforma te ayuda a tomar decisiones de compra eficientes para que ahorres tiempo y dinero.</i></p>
+            <a  href="{{ url_for('listar_productos') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all">
+                Ver Precios y Comparar
+            </a>
+        </div>
+        <div class="md:w-1/2 flex justify-center">
+            <img src="https://kreativo.pe/falabella/2024/12_Diciembre/images/chica.jpeg" alt="Chica" class="max-h-[400px] w-auto">
+        </div>
+    </div>
+
+    <!-- Marcas -->
+    <div class=" py-8">
+        <div class="container mx-auto flex flex-wrap justify-center items-center space-x-8 md:space-x-16">
+            <img src="https://kreativo.pe/falabella/2024/12_Diciembre/images/plaza_vea.jpeg" alt="Plazavea" class="h-12">
+            <img src="https://kreativo.pe/falabella/2024/12_Diciembre/images/metro.jpeg" alt="Metro" class="h-12">
+            <img src="https://kreativo.pe/falabella/2024/12_Diciembre/images/vivanda.jpeg" alt="Vivanda" class="h-12">
+            <img src="https://kreativo.pe/falabella/2024/12_Diciembre/images/wong.jpeg" alt="Wong" class="h-12">
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

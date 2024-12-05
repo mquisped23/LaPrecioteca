@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Lista de productos</title>
+    <style>
+        
+        .selected {
+            background-color: #d1e7dd; /* Color de fondo para el elemento seleccionado */
+        }
+        
+    </style>
+</head>
+<body>
+     <!-- Navbar -->
+     <nav class="text-white bg-orange-500 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-3xl font-bold">La Precioteca</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="/" class="text-lg  hover:text-blue-200">Inicio</a>
+                <a href="{{ url_for('listar_productos') }}" class=" text-lg hover:text-blue-200">Productos</a>
+                <a href="{{ url_for('ver_lista_precios') }}" class="text-lg  hover:text-blue-200">Mi lista</a>
+            </div>
+            <!-- Botón menú para dispositivos móviles -->
+            <div class="md:hidden">
+                <button id="menu-toggle" class="focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menú desplegable móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-orange-600 px-4 py-2">
+            <a href="/" class="block py-2 hover:text-blue-200">Inicio</a>
+            <a href="{{ url_for('listar_productos') }}" class="block py-2 hover:text-blue-200">Productos</a>
+            <a href="{{ url_for('ver_lista_precios') }}" class="block py-2 hover:text-blue-200">Mi lista</a>
+        </div>
+    </nav>
+  
+
+
+
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <h1 class="text-3xl font-bold text-center mb-6">Precios del tomate</h1>
+        
+        <form action="/productos/tomate" method="POST" class="bg-white shadow-md rounded-lg overflow-hidden">
+            <ul class="divide-y divide-gray-200">
+                {% for supermercado, precio in precios.items() %}
+                    <li class="list-group-item px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition duration-200 cursor-pointer">
+                        <span class="text-gray-800">{{ supermercado }}: S/{{ precio }}</span>
+                        <!-- Campos ocultos para enviar los precios -->
+                        <input type="hidden" name="supermercado" value="{{ supermercado }}">
+                        <input type="hidden" name="precio" value="{{ precio }}">
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <div class="px-4 py-3 bg-gray-100 flex justify-between items-center">
+                <button 
+                    type="submit" 
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+                >
+                    Guardar en mi lista
+                </button>
+                <a 
+                    href="{{ url_for('ver_lista_precios') }}" 
+                    class="text-gray-600 hover:text-gray-800 transition duration-300"
+                >
+                    Ver Lista de Precios
+                </a>
+            </div>
+        </form>
+    </div>
+    
+
+    
+    
+    
+ <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+</script>
+
+
+
+      <!-- Bootstrap JS and Popper.js -->
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
+   
+        
+  
+</body>
+</html>

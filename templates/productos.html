@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Lista de productos</title>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    
+    <!-- Navbar -->
+    <nav class="text-white bg-orange-500 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="text-3xl font-bold">La Precioteca</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="/" class="text-lg  hover:text-blue-200">Inicio</a>
+                <a href="{{ url_for('listar_productos') }}" class=" text-lg hover:text-blue-200">Productos</a>
+                <a href="{{ url_for('ver_lista_precios') }}" class="text-lg  hover:text-blue-200">Mi lista</a>
+            </div>
+            <!-- Botón menú para dispositivos móviles -->
+            <div class="md:hidden">
+                <button id="menu-toggle" class="focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Menú desplegable móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-orange-600 px-4 py-2">
+            <a href="/" class="block py-2 hover:text-blue-200">Inicio</a>
+            <a href="{{ url_for('listar_productos') }}" class="block py-2 hover:text-blue-200">Productos</a>
+            <a href="{{ url_for('ver_lista_precios') }}" class="block py-2 hover:text-blue-200">Mi lista</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-6">Elige el producto que desea</h1>
+
+        <!-- Formulario de búsqueda -->
+        <form method="GET" action="{{ url_for('listar_productos') }}" class="mb-6">
+            <div class="flex">
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Buscar producto" 
+                    value="{{ request.args.get('search', '') }}"
+                    id="search-input"
+                    class="flex-grow px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <button 
+                    type="button" 
+                    id="clear-btn" 
+                    class="px-3 py-2 bg-gray-200 hover:bg-gray-300 border-y border-r rounded-r-md"
+                >
+                    X
+                </button>
+                <button 
+                    type="submit" 
+                    class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" style="background-color: #ff800b;"
+                >
+                    Buscar
+                </button>
+            </div>
+        </form>
+
+        <!-- Productos Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {% for producto in productos %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                <a href="{{ producto.url }}" class="block">
+                    <img 
+                        src="{{ producto.imagen_url }}" 
+                        alt="{{ producto.nombre }}" 
+                        class="w-full h-48 object-contain bg-white"
+                    >
+                    <div class="p-4 text-center">
+                        <h5 class="text-lg font-semibold text-gray-800">{{ producto.nombre }}</h5>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center text-gray-600">
+                No se encontraron productos
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            document.getElementById('search-input').value = '';
+            this.closest('form').submit();
+        });
+    </script>
+
+    <!-- Scripts -->
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
